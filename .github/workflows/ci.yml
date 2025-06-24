@@ -1,4 +1,4 @@
-name: Build and Test
+name: Build, Lint, and Test
 
 on:
   push:
@@ -6,7 +6,7 @@ on:
   pull_request:
 
 jobs:
-  build-and-test:
+  build-lint-test:
     runs-on: ubuntu-latest
 
     steps:
@@ -22,8 +22,17 @@ jobs:
       run: |
         python -m pip install --upgrade pip
         pip install -r requirements.txt || true
-        pip install pytest
+        pip install pytest flake8
         pip show pytest
+        pip show flake8
+
+    - name: Lint with flake8
+      run: |
+        echo "Running flake8 lint check..."
+        flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
+        flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
 
     - name: Run tests
       run: |
+        echo "Running pytest unit tests..."
+        pytest
